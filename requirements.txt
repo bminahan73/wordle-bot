@@ -1,5 +1,4 @@
 requests
 fastapi[all]
 uvicorn[standard]
-cryptography
 gunicorn

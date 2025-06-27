@@ -1,2 +1,4 @@
 requests
-fastapi[standard]
+fastapi[all]
+uvicorn
+gunicorn

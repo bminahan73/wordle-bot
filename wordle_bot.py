@@ -162,7 +162,6 @@ class WordleSolver:
         return tuple(feedback)
 
     def is_solved(self, feedback: tuple) -> bool:
-        print()
         return ''.join([str(x) for x in feedback]) == '22222'
         
     def play(self) -> WordleSolution:

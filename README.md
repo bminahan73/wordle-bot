@@ -1,5 +1,7 @@
 # wordle-bot
 
+[Wordle Bot](https://wordle-bot.benminahan.com) plays wordle every day, using greatest-entrpoy algorithm. Can you do better?
+
 This repo consists of:
 
 1. an algorithm to play New York Times [wordle](https://fastapi.tiangolo.com/#example) in [wordle_bot.py](./wordle_bot.py)

@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wordle-Bot 🤖</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Clear+Sans:wght@400;700&family=Roboto+Slab:wght@600&display=swap" rel="stylesheet">
+    <script src="wordlebot.js"></script>
+    <style>
+        :root {
+            --wordle-green: #6aaa64;
+            --wordle-yellow: #c9b458;
+            --wordle-gray: #787c7e;
+            --wordle-light: #f8f8f8;
+            --wordle-dark: #121213;
+            --shadow: 0 4px 8px rgba(0,0,0,0.1);
+            --shadow-hover: 0 6px 12px rgba(0,0,0,0.15);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Clear Sans', sans-serif;
+            background-color: var(--wordle-light);
+            color: var(--wordle-dark);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 2rem;
+            line-height: 1.6;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 2rem;
+            animation: fadeIn 0.8s ease-out;
+        }
+        
+        h1 {
+            font-family: 'Roboto Slab', serif;
+            font-size: 2.5rem;
+            color: var(--wordle-green);
+            margin-bottom: 0.5rem;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+        }
+        
+        .subtitle {
+            font-size: 1.1rem;
+            color: var(--wordle-gray);
+        }
+        
+        #todays-results {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: var(--shadow);
+            width: 100%;
+            max-width: 600px;
+            animation: slideUp 0.6s ease-out;
+            display: none; /* Hidden by default */
+        }
+        
+        .result-row {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .result-label {
+            font-weight: 700;
+            min-width: 100px;
+            color: var(--wordle-gray);
+        }
+        
+        .result-value {
+            font-size: 1.2rem;
+        }
+        
+        #todays-solution {
+            font-weight: 700;
+            color: var(--wordle-green);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+        
+        #todays-solved {
+            color: var(--wordle-green);
+            font-weight: 700;
+        }
+        
+        .attempts-title {
+            margin-bottom: 1rem;
+        }
+        
+        #todays-attempts {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+            gap: 10px;
+            list-style: none;
+        }
+        
+        #todays-attempts li {
+            background: white;
+            border: 2px solid #d3d6da;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+            animation: popIn 0.4s ease-out;
+            animation-fill-mode: both;
+        }
+        
+        #todays-attempts li:nth-child(1) { animation-delay: 0.2s; }
+        #todays-attempts li:nth-child(2) { animation-delay: 0.4s; }
+        #todays-attempts li:nth-child(3) { animation-delay: 0.6s; }
+        #todays-attempts li:nth-child(4) { animation-delay: 0.8s; }
+        
+        #todays-attempts li:last-child {
+            background-color: var(--wordle-green);
+            color: white;
+            border-color: var(--wordle-green);
+            transform: scale(1.05);
+        }
+
+        .spoiler-warning {
+            color: var(--wordle-gray);
+            font-style: italic;
+            margin-top: 1rem;
+            text-align: center;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @keyframes popIn {
+            0% { opacity: 0; transform: scale(0.8); }
+            50% { opacity: 1; transform: scale(1.1); }
+            100% { opacity: 1; transform: scale(1); }
+        }
+        
+        @media (max-width: 600px) {
+            body {
+                padding: 1rem;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            #todays-results {
+                padding: 1.5rem;
+            }
+        }
+
+        .toggle-btn {
+            position: relative;
+            background-color: var(--wordle-green);
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            font-size: 1.1rem;
+            font-weight: bold;
+            border-radius: 50px;
+            cursor: pointer;
+            margin-bottom: 1.5rem;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            min-width: 220px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .toggle-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(
+                45deg,
+                rgba(255,255,255,0.05) 0%,
+                rgba(255,255,255,0.15) 50%,
+                rgba(255,255,255,0.05) 100%
+            );
+            transform: translateX(-100%);
+            transition: transform 0.6s ease;
+            opacity: 0.8;
+        }
+        
+        .toggle-btn:hover {
+            background-color: var(--wordle-dark-green);
+            box-shadow: var(--shadow-hover);
+            transform: translateY(-3px) scale(1.02);
+        }
+        
+        .toggle-btn:hover::before {
+            transform: translateX(100%);
+        }
+        
+        .toggle-btn:active {
+            transform: translateY(1px) scale(0.98);
+            background-color: var(--wordle-dark-green);
+        }
+        
+        .toggle-btn .icon {
+            margin-left: 8px;
+            transition: transform 0.3s ease;
+            display: inline-block;
+        }
+        
+        .toggle-btn.active .icon {
+            transform: rotate(180deg);
+        }
+
+        .header-links {
+            display: flex;
+            gap: 1.5rem;
+            justify-content: center;
+            margin-bottom: 1rem;
+        }
+        
+        .header-link {
+            color: var(--wordle-green);
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 0.9rem;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .header-link:hover {
+            background-color: rgba(106, 170, 100, 0.1);
+            transform: translateY(-2px);
+        }
+        
+        .header-link svg {
+            width: 16px;
+            height: 16px;
+            fill: currentColor;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Wordle-Bot 🤖</h1>
+        <p class="subtitle">Mr. roboto plays wordle. Can you do better?</p>
+        <br/>
+        <div class="header-links">
+            <a href="https://www.nytimes.com/games/wordle" class="header-link" target="_blank">
+                <svg viewBox="0 0 24 24">
+                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/>
+                </svg>
+                Play Wordle
+            </a>
+            <a href="https://github.com/bminahan73/wordle-bot" class="header-link" target="_blank">
+                <svg viewBox="0 0 24 24">
+                    <path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/>
+                </svg>
+                Code
+            </a>
+        </div>
+    </header>
+
+    <button class="toggle-btn" id="toggleResults">
+        Show Results
+        <span class="icon">▼</span>
+    </button>
+    <p class="spoiler-warning">Spoiler Warning: Contains today's Wordle answer!</p>
+    
+    <div id="todays-results">
+        <div class="result-row">
+            <span class="result-label">Solution:</span>
+            <span class="result-value" id="todays-solution"></span>
+        </div>
+        
+        <div class="result-row">
+            <span class="result-label">Solved:</span>
+            <span class="result-value" id="todays-solved"></span>
+        </div>
+        
+        <h2 class="attempts-title">Guesses:</h2>
+        <ol id="todays-attempts">
+        </ol>
+    </div>
+</body>
+</html>

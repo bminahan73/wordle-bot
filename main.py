@@ -3,6 +3,7 @@ from fastapi.staticfiles import StaticFiles
 import json
 import requests
 import datetime
+import uvicorn
 
 with open("results.json", "r") as f:
     results = json.load(f)
@@ -17,3 +18,6 @@ app = FastAPI()
 
 app.mount("/api/v1", api_app)
 app.mount("/", StaticFiles(directory="static",html = True), name="static")
+
+if __name__ == "__main__":
+    uvicorn.run("main:app", host="0.0.0.0", port=443, ssl_keyfile='key.pem', ssl_certfile='cert.pem')

@@ -3,3 +3,4 @@ __pycache__
 feedback_matrix.bin
 first_guess.txt
 results.json
+*.pem

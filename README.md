@@ -3,7 +3,7 @@
 This repo consists of:
 
 1. an algorithm to play New York Times [wordle](https://fastapi.tiangolo.com/#example) in [wordle_bot.py](./wordle_bot.py)
-2. a small site built using [fastapi](https://fastapi.tiangolo.com/#example) that displays the bot's results for the current day's word, which lives in [site.py](./site.py)
+2. a small site built using [fastapi](https://fastapi.tiangolo.com/#example) that displays the bot's results for the current day's word, which lives in [main.py](./main.py)
 
 ## How-Do
 
@@ -25,9 +25,19 @@ python worlde_bot.py
 
 3. When complete, wordle bot will produce a `results.json` which contains information on all its best attempt at all the possible solutions for Wordle.
 
-4. Run the frontend site with `fastapi dev site.py`. You should then see the site at [http://127.0.0.1:8000](http://127.0.0.1:8000) with todays results!
+4. Run the frontend site with `fastapi dev main.py`. You should then see the site at [http://127.0.0.1:8000](http://127.0.0.1:8000) with todays results!
 
 > the results are pulled from wordle's website, and then looked up in the pre-computed `results.json` file.
+
+## Server
+
+1. Have an SSL Certificate. Put `cert.pem` and `key.pem` in the root of this repo (gitignored). You can generate a self-signed one:
+
+```shell
+openssl req -x509 -newkey rsa:4096 -nodes -out cert.pem -keyout key.pem -days 365
+```
+
+2. Run `python main.py`. Will run `uvicorn` with SSL
 
 ## LICENSE
 

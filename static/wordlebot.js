@@ -1,4 +1,4 @@
-fetch(`/api/v1/results/today`)
+fetch("/api/v1/results/today")
   .then(response => {
     if (!response.ok) {
       throw new Error('Network response was not ok');

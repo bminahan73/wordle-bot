@@ -31,15 +31,19 @@ python worlde_bot.py
 
 > the results are pulled from wordle's website, and then looked up in the pre-computed `results.json` file.
 
-## Server
+## Server /Docker
 
-1. Have an SSL Certificate. Put `cert.pem` and `key.pem` in the root of this repo (gitignored). You can generate a self-signed one:
+1. Build the docker container. Before doing so you will need to edit the bits that call out `wordle-bot.benminahan.com` and change to whatever host name you want.
 
 ```shell
-openssl req -x509 -newkey rsa:4096 -nodes -out cert.pem -keyout key.pem -days 365
+docker build -t wordle-bot .
 ```
 
-2. Run `python main.py`. Will run `uvicorn` with SSL
+2. Run the docker container. You will need to supply an email address for `certbot` to set up HTTPS for you:
+
+```shell
+docker run -p 80:80 -p 443:443 -e CERTBOT_EMAIL=me@example.com wordle-bot
+```
 
 ## LICENSE
 

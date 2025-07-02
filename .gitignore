@@ -1,6 +1,6 @@
 .venv
 __pycache__
-feedback_matrix.bin
-first_guess.txt
-results.json
+feedback_matrix.bin*
+first_guess.txt*
+results.json*
 *.pem

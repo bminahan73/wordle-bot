@@ -14,13 +14,14 @@ class WordleSolution:
     attempt: list
 
 class WordleSolver:
-    def __init__(self, solution=None):
-        if not os.path.exists('allowed_guesses.txt'):
-            print("must provide allowed_guesses.txt")
+    def __init__(self, solution: str = None, use_all_allowed_guesses: bool = False):
+        allowed_guesses_file = 'allowed_guesses.txt' if use_all_allowed_guesses else 'solutions.txt'
+        if not os.path.exists(allowed_guesses_file):
+            print(f"must provide {allowed_guesses_file}")
             sys.exit(1)
         else:
             print("loading allowed guesses")
-            with open('allowed_guesses.txt') as f:
+            with open(allowed_guesses_file) as f:
                 self.allowed_guesses = [line.strip().lower() for line in f if line.strip()]
         self.word_to_index = {word: idx for idx, word in enumerate(self.allowed_guesses)}
         if not os.path.exists('solutions.txt'):

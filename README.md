@@ -7,6 +7,22 @@ This repo consists of:
 1. an algorithm to play New York Times [wordle](https://fastapi.tiangolo.com/#example) in [wordle_bot.py](./wordle_bot.py)
 2. a small site built using [fastapi](https://fastapi.tiangolo.com/#example) that displays the bot's results for the current day's word, which lives in [main.py](./main.py)
 
+## Current Algorithm Stats
+
+``shell
+$ python wordle_bot.py analyze
+Total solutions: 2309
+Solved solutions: 2309
+Solved percent: 100.0%
+Average number of guesses: 3.67
+First guess: 1
+Second guess: 34
+Third guess: 841
+Forth guess: 1286
+Fifth guess: 144
+Sixth guess: 3
+```
+
 ## How-Do
 
 1. Set up your python environment however you do, and install requirements

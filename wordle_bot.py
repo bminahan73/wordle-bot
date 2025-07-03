@@ -6,6 +6,7 @@ import os
 import sys
 from dataclasses import dataclass, asdict
 import json
+import click
 
 @dataclass
 class WordleSolution:
@@ -109,6 +110,7 @@ class WordleSolver:
             self.solution = requests.get(url=f"https://www.nytimes.com/svc/wordle/v2/{str(datetime.date.today())}.json").json()["solution"]
         else:
             self.solution = solution
+        print(f"(solution: {self.solution})")
         self.candidate_set = list(range(len(self.solutions)))
         self.first_step_done = False
 
@@ -139,31 +141,16 @@ class WordleSolver:
                 best_guess_index = guess_idx
         return best_guess_index
 
-    def update(self, guess_index, feedback_tuple):
+    def update(self, guess_index, feedback_code: int):
         self.first_step_done = True
-        code = 0
-        for i in range(5):
-            code = code * 3 + feedback_tuple[i]
         new_candidate_set = []
         for sol_idx in self.candidate_set:
-            if self.feedback_matrix[guess_index][sol_idx] == code:
+            if self.feedback_matrix[guess_index][sol_idx] == feedback_code:
                 new_candidate_set.append(sol_idx)
         self.candidate_set = new_candidate_set
-        
-    def compute_feedback(self, guess) -> tuple:
-        feedback = [0,0,0,0,0]
-        for idx, char in enumerate(guess):
-            if self.solution[idx] == char:
-                feedback[idx] = 2
-                continue
-            for s_idx, _ in enumerate(self.solution):
-                if self.solution[s_idx] == char:
-                    feedback[idx] = 1
-                    continue
-        return tuple(feedback)
 
-    def is_solved(self, feedback: tuple) -> bool:
-        return ''.join([str(x) for x in feedback]) == '22222'
+    def is_solved(self, feedback_code: int) -> bool:
+        return feedback_code == 242
         
     def play(self) -> WordleSolution:
         guesses = []
@@ -178,12 +165,12 @@ class WordleSolver:
             guess_word = self.allowed_guesses[guess_idx]
             guesses.append(guess_word)
             print(f"Guess: {guess_word}")
-            feedback = self.compute_feedback(guess_word)
-            print(f"Feedback: {feedback}")
-            solved = self.is_solved(feedback)
+            feedback_code = self.get_feedback_code(guess_word)
+            print(f"Feedback: {feedback_code}")
+            solved = self.is_solved(feedback_code)
             if solved:
                 break
-            self.update(guess_idx, feedback)
+            self.update(guess_idx, feedback_code)
             guess_count += 1
         print(f"Solved! Guess count: {guess_count}") if solved else print(f"Could not solve in {max_guesses} guesses :(")
         return WordleSolution(self.solution, solved, guesses)
@@ -194,10 +181,53 @@ class WordleSolver:
             self.reset(solution)
             wordle_solutions.append(self.play())
         return wordle_solutions
+
+    def save_all(self):
+        with open("results.json", "w") as f:
+            f.write(json.dumps([asdict(x) for x in self.play_all()]))
+    
+    @staticmethod
+    def analyze():
+        with open("results.json", "r") as f:
+            results = json.load(f)
+        total_solutions = len(results)
+        solved_solutions = 0
+        guess_counts = [0] * 6 
+        for result in results:
+            if result["solved"]:
+                solved_solutions += 1
+                guess_counts[len(result["attempt"]) - 1] += 1
+        solved_percent = (solved_solutions / total_solutions) * 100
+        average_num_guesses = round(((guess_counts[0] * 1) + (guess_counts[1] * 2) + (guess_counts[2] * 3) + (guess_counts[3] * 4) + (guess_counts[4] * 5) + (guess_counts[5] * 6)) / total_solutions, 2)
+        print(f"Total solutions: {total_solutions}")
+        print(f"Solved solutions: {solved_solutions}")
+        print(f"Solved percent: {solved_percent}%")
+        print(f"Average number of guesses: {average_num_guesses}")
+        print(f"First guess: {guess_counts[0]}")
+        print(f"Second guess: {guess_counts[1]}")
+        print(f"Third guess: {guess_counts[2]}")
+        print(f"Forth guess: {guess_counts[3]}")
+        print(f"Fifth guess: {guess_counts[4]}")
+        print(f"Sixth guess: {guess_counts[5]}")
             
 
+@click.group()
+def cli():
+    pass
+
+@cli.command()
+def once():
+    solver = WordleSolver()
+    solver.play()
+    
+@cli.command()
+def all():
+    solver = WordleSolver()
+    solver.save_all()
+
+@cli.command()
+def analyze():
+    WordleSolver.analyze()
 
 if __name__ == "__main__":
-    solver = WordleSolver()
-    with open("results.json", "w") as f:
-        f.write(json.dumps([asdict(x) for x in solver.play_all()]))
+    cli()
